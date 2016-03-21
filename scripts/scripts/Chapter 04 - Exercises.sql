@@ -24,6 +24,13 @@ FROM Sales.Customers AS C
   INNER JOIN Sales.Orders AS O
     ON C.custid = O.custid;
 
+SELECT
+	s.contactname,s.*
+FROM Sales.Orders o
+right outer JOIN Sales.Customers s
+	ON o.custid = s.custid
+
+
 ---------------------------------------------------------------------
 -- Exercise 2 - Match Customers and Orders with Outer Joins
 ---------------------------------------------------------------------

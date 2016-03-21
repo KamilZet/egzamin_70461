@@ -19,6 +19,12 @@
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
+        <FileNode Name="Chapter 00 - KamilZien.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:KAZET_PC\SQLEXPRESS:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>KAZET_PC\SQLEXPRESS</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Chapter 00 - KamilZien.sql</FullPath>
+        </FileNode>
         <FileNode Name="Chapter 01 - Code.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:KAZET_PC\SQLEXPRESS:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>KAZET_PC\SQLEXPRESS</AssociatedConnSrvName>

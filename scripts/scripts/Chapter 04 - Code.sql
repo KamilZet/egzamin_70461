@@ -5,6 +5,7 @@
 
 -- add row to Production.Suppliers
 USE TSQL2012;
+GO
 
 INSERT INTO Production.Suppliers(companyname, contactname, contacttitle, address, city, postalcode, country, phone)
   VALUES(N'Supplier XYZ', N'Jiru', N'Head of Security', N'42 Sekimai Musashino-shi', N'Tokyo', N'01759', N'Japan', N'(02) 4311-2609');
@@ -213,21 +214,23 @@ WHERE rownum <= 2;
 
 -- Recursive CTE
 -- management chain leading to given employee
+
 WITH EmpsCTE AS
 (
-  SELECT empid, mgrid, firstname, lastname, 0 AS distance
-  FROM HR.Employees
+  SELECT empid, mgrid, firstname, lastname,title,0 AS distance
+  FROM tsql2012.HR.Employees
   WHERE empid = 9
 
   UNION ALL
 
-  SELECT M.empid, M.mgrid, M.firstname, M.lastname, S.distance + 1 AS distance
+  SELECT M.empid, M.mgrid, M.firstname, M.lastname,M.title,S.distance + 1 AS distance
   FROM EmpsCTE AS S
     JOIN HR.Employees AS M
       ON S.mgrid = M.empid
 )
-SELECT empid, mgrid, firstname, lastname, distance
-FROM EmpsCTE;
+SELECT empid, mgrid, firstname, lastname,title, distance
+FROM EmpsCTE
+order by distance asc;
 GO
 
 -- Views
@@ -301,6 +304,28 @@ FROM Production.Suppliers AS S
                OFFSET 0 ROWS FETCH FIRST 2 ROWS ONLY) AS A
 WHERE S.country = N'Japan';
 
+-- CROSS APPLY poprzez z³¹czenie
+
+SELECT
+	S.supplierid
+	,S.companyname AS supplier
+	,a.productid
+	,a.productname
+	,a.unitprice
+FROM Production.Suppliers AS S
+INNER JOIN (SELECT TOP 1 WITH TIES
+		productid
+		,productname
+		,unitprice
+		,supplierid
+	FROM Production.Products
+	ORDER BY CASE
+		WHEN ROW_NUMBER() OVER (PARTITION BY supplierid ORDER BY unitprice ASC) <= 2 THEN 0
+		ELSE 1
+	END) AS A
+	ON A.supplierid = S.supplierid
+WHERE S.country = N'Japan';
+
 -- OUTER APPLY
 -- two products with lowest unit prices for each supplier from Japan
 -- include suppliers without products
@@ -312,6 +337,9 @@ FROM Production.Suppliers AS S
                ORDER BY unitprice, productid
                OFFSET 0 ROWS FETCH FIRST 2 ROWS ONLY) AS A
 WHERE S.country = N'Japan';
+
+
+
 
 ---------------------------------------------------------------------
 -- Lesson 03 - Using Set Operators

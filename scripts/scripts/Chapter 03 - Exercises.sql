@@ -18,14 +18,24 @@
 -- 2.
 
 USE TSQL2012;
+GO
 
-SELECT orderid, orderdate, custid, empid
+
+SELECT
+	orderid
+	,orderdate
+	,custid
+	,empid
 FROM Sales.Orders
 WHERE shippeddate = NULL;
 
 -- 3.
 
-SELECT orderid, orderdate, custid, empid
+SELECT
+	orderid
+	,orderdate
+	,custid
+	,empid
 FROM Sales.Orders
 WHERE shippeddate IS NULL;
 
@@ -35,15 +45,24 @@ WHERE shippeddate IS NULL;
 
 -- 1.
 
-SELECT orderid, orderdate, custid, empid
+SELECT
+	orderid
+	,orderdate
+	,custid
+	,empid
 FROM Sales.Orders
 WHERE orderdate BETWEEN '20080211' AND '20080212 23:59:59.999';
 
 -- 2.
 
-SELECT orderid, orderdate, custid, empid
+SELECT
+	orderid
+	,orderdate
+	,custid
+	,empid
 FROM Sales.Orders
-WHERE orderdate >= '20080211' AND orderdate < '20080213';
+WHERE orderdate >= '20080211'
+AND orderdate < '20080213';
 
 ---------------------------------------------------------------------
 -- Lesson 02 - Sorting Data
@@ -59,13 +78,21 @@ WHERE orderdate >= '20080211' AND orderdate < '20080213';
 
 -- 2.
 
-SELECT orderid, empid, shipperid, shippeddate
+SELECT
+	orderid
+	,empid
+	,shipperid
+	,shippeddate
 FROM Sales.Orders
 WHERE custid = 77;
 
 -- 3.
 
-SELECT orderid, empid, shipperid, shippeddate
+SELECT
+	orderid
+	,empid
+	,shipperid
+	,shippeddate
 FROM Sales.Orders
 WHERE custid = 77
 ORDER BY shipperid;
@@ -76,14 +103,22 @@ ORDER BY shipperid;
 
 -- 1.
 
-SELECT orderid, empid, shipperid, shippeddate
+SELECT
+	orderid
+	,empid
+	,shipperid
+	,shippeddate
 FROM Sales.Orders
 WHERE custid = 77
 ORDER BY shipperid, shippeddate DESC;
 
 -- 2.
 
-SELECT orderid, empid, shipperid, shippeddate
+SELECT
+	orderid
+	,empid
+	,shipperid
+	,shippeddate
 FROM Sales.Orders
 WHERE custid = 77
 ORDER BY shipperid, shippeddate DESC, orderid DESC;
@@ -102,21 +137,27 @@ ORDER BY shipperid, shippeddate DESC, orderid DESC;
 
 -- 2.
 -- five most expensive products
-SELECT TOP (5) productid, unitprice
+SELECT TOP (5)
+	productid
+	,unitprice
 FROM Production.Products
 WHERE categoryid = 1
 ORDER BY unitprice DESC;
 
 -- 3.
 -- five most expensive products, with ties
-SELECT TOP (5) WITH TIES productid, unitprice
+SELECT TOP (5) WITH TIES
+	productid
+	,unitprice
 FROM Production.Products
 WHERE categoryid = 1
 ORDER BY unitprice DESC;
 
 -- 4.
 -- five most expensive products, breaking ties
-SELECT TOP (5) productid, unitprice
+SELECT TOP (5)
+	productid
+	,unitprice
 FROM Production.Products
 WHERE categoryid = 1
 ORDER BY unitprice DESC, productid DESC;
@@ -129,21 +170,60 @@ ORDER BY unitprice DESC, productid DESC;
 
 -- 2.
 -- first 5 rows
-SELECT productid, categoryid, unitprice
+SELECT
+	productid
+	,categoryid
+	,unitprice
 FROM Production.Products
 ORDER BY unitprice, productid
 OFFSET 0 ROWS FETCH FIRST 5 ROWS ONLY;
 
 -- 3.
 -- rows 6 through 10
-SELECT productid, categoryid, unitprice
+SELECT
+	productid
+	,categoryid
+	,unitprice
 FROM Production.Products
 ORDER BY unitprice, productid
 OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;
 
 -- 4.
 -- rows 11 through 15
-SELECT productid, categoryid, unitprice
+SELECT
+	productid
+	,categoryid
+	,unitprice
 FROM Production.Products
 ORDER BY unitprice, productid
 OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY;
+
+
+-- top 3 od klienta po wartosci zamowienia:
+
+;with OrdersTotals(custid,orderid,ordertotal) as(
+select
+	o.custid
+	,o.orderid
+	,sum(od.qty * od.unitprice)
+FROM Sales.Orders o
+JOIN Sales.OrderDetails od
+	ON o.orderid = od.orderid
+GROUP by o.custid,o.orderid
+)
+
+SELECT TOP 1 WITH TIES
+	custid
+	,orderid
+	,ordertotal
+FROM OrdersTotals
+ORDER BY CASE
+	WHEN ROW_NUMBER() OVER (PARTITION BY custid ORDER BY ordertotal DESC) <= 2 THEN 0
+	ELSE 1
+END;
+
+
+select orderid from Sales.Orders order by orderid OFFSET 2 ROWS
+
+
+select orderid from Sales.Orders order by orderid fetch next 2 rows
